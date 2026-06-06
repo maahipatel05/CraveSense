@@ -1,3 +1,24 @@
+"""
+CraveSense — baseline modeling module.
+
+Implements four scikit-learn classifiers evaluated across three class-imbalance
+handling strategies for early-stage craving prediction experiments:
+
+  Classifiers:
+    - Logistic Regression  (linear baseline)
+    - Random Forest        (ensemble, non-linear)
+    - Gradient Boosting    (boosted ensemble)
+    - SVM (RBF kernel)     (margin-based)
+
+  Imbalance strategies:
+    - Baseline:      No adjustment; trained on raw class distribution.
+    - Oversampling:  Minority class upsampled to majority count (with replacement).
+    - Weighted:      class_weight='balanced' or sample_weight for GBM.
+
+Note: This module is superseded by modeling_advanced.py which uses LOGO-CV,
+neural latent features, Gaussian noise augmentation, and Youden's J thresholding.
+Retained for architectural comparison and methodological progression reference.
+"""
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt

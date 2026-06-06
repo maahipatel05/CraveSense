@@ -1,3 +1,41 @@
+"""
+CraveSense — advanced multimodal modeling and ablation study.
+
+Core ML module. Implements a rigorous evaluation framework for comparing
+six modality combinations in both detection and forecasting task modes.
+
+Design decisions and rationale:
+
+  Leave-One-Group-Out CV (LOGO):
+    Groups = participants. In a small-N clinical study (~29 participants),
+    standard k-fold risks within-participant leakage — the same person's
+    survey windows appear in both train and test. LOGO eliminates this by
+    holding out each participant entirely, producing conservative but
+    clinically realistic estimates of generalisation to unseen individuals.
+
+  Gaussian noise augmentation:
+    Minority class (craving=1) is oversampled with additive Gaussian noise
+    (sigma = 10% of feature std) instead of SMOTE, which can extrapolate
+    into physiologically implausible regions of the feature space.
+
+  RandomizedSearchCV inside LOGO:
+    Hyperparameter search (n_estimators, max_depth, min_samples_split) is
+    run within each LOGO training fold to prevent optimistic bias from
+    tuning on test-participant data.
+
+  Youden's J threshold:
+    Decision threshold per fold is chosen to maximise TPR − FPR on the
+    training set rather than defaulting to 0.5, which is inappropriate
+    for imbalanced clinical data.
+
+Modality ablation combinations:
+    1. Baseline (majority-class dummy)
+    2. EMA Only (psychological self-report)
+    3. Sensors Only (Fitbit HR + steps + LSTM latent)
+    4. fMRI Only (neural connectivity latent)
+    5. Sensors + fMRI (physio-neural fusion)
+    6. EMA + Sensors + fMRI (full multimodal)
+"""
 import pandas as pd
 import numpy as np
 import os

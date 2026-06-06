@@ -1,3 +1,27 @@
+"""
+CraveSense — main pipeline entry point.
+
+Runs two independent craving prediction experiments on the merged multimodal dataset:
+
+  Experiment 1 — Real-Time Detection:
+    Predicts whether the participant is craving RIGHT NOW using current-window
+    EMA features (stress, mood, affect) and concurrent Fitbit physiological data.
+    Input shift = 0 minutes.
+
+  Experiment 2 — Standardized Forecasting:
+    Predicts current craving using only features from 90 minutes earlier,
+    enabling a practical advance-warning window for clinical intervention.
+    Input shift = 90 minutes.
+
+Both experiments run a full modality ablation study (see modeling_advanced.py)
+using Leave-One-Group-Out cross-validation grouped by participant ID.
+
+Usage:
+    python main.py
+
+On first run, generates and caches Final_Master_Dataset_Imputed.csv (~670 MB).
+Subsequent runs load the cached file directly. Delete the file to regenerate.
+"""
 import data_loader
 import modeling_advanced
 import pandas as pd

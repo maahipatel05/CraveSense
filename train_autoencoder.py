@@ -1,3 +1,25 @@
+"""
+CraveSense — first-generation Fitbit LSTM autoencoder (reference only).
+
+Trains a lightweight LSTM autoencoder on 45-minute sliding windows of
+Fitbit heart rate and step count data. Produces a 5-dimensional latent
+embedding via unsupervised reconstruction (MSE loss).
+
+Architecture:
+    Encoder: LSTM(input=2, hidden=5, layers=1)
+    Decoder: LSTM(input=5, hidden=2, layers=1)
+    Sequence length: 45 timesteps (one per minute)
+    Embedding dim:   5
+
+Saved weights: crave_autoencoder.pth
+
+DEPRECATION NOTICE:
+    This script is superseded by train_multimodal_encoders.py, which uses:
+      - A longer sequence window (90 min vs 45 min) for richer context
+      - A higher embedding dimension (32 vs 5) for greater expressiveness
+      - A separate fMRI autoencoder trained jointly
+    Retained for methodological reference and ablation comparison.
+"""
 import pandas as pd
 import numpy as np
 import torch
