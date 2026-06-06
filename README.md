@@ -371,7 +371,7 @@ If you use this codebase or methodology in your research, please cite:
 ```bibtex
 @misc{cravesense2026,
   title   = {CraveSense: Multimodal Craving Prediction via EMA, Wearables, and fMRI},
-  author  = {Shah, Maahi},
+  author  = {Patel, Maahi}, {Shah, Jinay}
   year    = {2026},
   url     = {https://github.com/maahipatel05/CraveSense}
 }
