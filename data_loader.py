@@ -83,7 +83,7 @@ except Exception as e:
     ae_fmri = None
     print("⚠️ Warning: fMRI Autoencoder model not found.")
 
-def clean_ids(df, col_name):
+def clean_ids(df: pd.DataFrame, col_name: str) -> pd.DataFrame:
     if col_name in df.columns:
         df[col_name] = df[col_name].astype(str).str.strip().str.upper()
     return df
@@ -166,7 +166,7 @@ def process_fmri_latent(fmri_df):
         print(f"Warning: fMRI latent extraction failed {e}")
         return fmri_df
 
-def get_time_of_day(hour):
+def get_time_of_day(hour: int) -> str:
     if 5 <= hour < 12: return 'Morning'
     elif 12 <= hour < 17: return 'Afternoon'
     elif 17 <= hour < 22: return 'Evening'
@@ -175,7 +175,9 @@ def get_time_of_day(hour):
 def smart_impute(df):
     print("--- 5. RUNNING SMART IMPUTATION (Time-of-Day + Activity) ---")
     df['Time_of_Day'] = df['Hour'].apply(get_time_of_day)
-    
+    tod_counts = df['Time_of_Day'].value_counts()
+    print(f"  Time-of-Day distribution: {tod_counts.to_dict()}")
+
     ignore_impute = ['Craving_Intensity', 'Craving_Binary', 'Target_Now', 'Hour', 'User_ID', 'Prev_Time', 'Hours_Since_Prev']
     numeric_cols = df.select_dtypes(include=[np.number]).columns
     
@@ -228,7 +230,9 @@ def generate_master_dataset(apply_imputation=True):
     fmri = clean_ids(fmri, 'User_ID')
     demo = clean_ids(demo, 'Crave-ID')
     surveys = clean_ids(surveys, 'User_ID')
-    
+    print(f"  EMA: {ema.shape}, Fitbit: {fitbit.shape}, fMRI: {fmri.shape}")
+    print(f"  Demographics: {demo.shape}, Surveys: {surveys.shape}")
+
     print("--- 2. PREPROCESSING EMA ---")
     ema['Start'] = pd.to_datetime(ema['Start'])
     ema = ema.sort_values(by=['User_ID', 'Start'])

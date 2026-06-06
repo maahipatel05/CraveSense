@@ -23,7 +23,7 @@ utility and for methodological transparency.
 import pandas as pd
 import numpy as np
 
-def load_and_clean_data(filepath):
+def load_and_clean_data(filepath: str) -> pd.DataFrame:
     """
     Loads data, normalizes scales between Phase 1/2, and removes conflicting duplicates.
     """
@@ -52,8 +52,9 @@ def load_and_clean_data(filepath):
     def normalize_mood(row):
         val = row['Mood']
         if row['Data Collection (Phase)'] == 'Phase 1':
-            # Mood 1-5 -> min 1, range 4
-            return (val - 1) / 4.0 
+            # Phase 1 uses a 1–5 scale: subtract the min (1) then divide by the range (4)
+            # to correctly map to [0, 1]. Formula: (val - 1) / 4.0
+            return (val - 1) / 4.0
         else:
             return val / 12.0
 
@@ -75,5 +76,6 @@ def load_and_clean_data(filepath):
     
     print(f"Data Cleaning Complete. Dropped {dropped_count} conflicting/duplicate entries.")
     print(f"Final dataset shape: {df_clean.shape}")
+    print(f"  Phase distribution: {df_clean['Data Collection (Phase)'].value_counts().to_dict()}")
     
     return df_clean

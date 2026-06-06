@@ -36,7 +36,7 @@ def clean_ids(df, col_name):
         df[col_name] = df[col_name].astype(str).str.strip().str.upper()
     return df
 
-def run_diagnostic():
+def run_diagnostic() -> None:
     print("--- 1. LOADING RAW FILES FOR DIAGNOSTIC ---")
     ema = pd.read_csv('Updated_CombineEMA-2.csv')
     fitbit = pd.read_csv('Crave_Pilot_Fitbit.csv')
@@ -82,6 +82,8 @@ def run_diagnostic():
     plt.tight_layout()
     plt.savefig('Imputation_Histogram.png')
     print("Saved histogram as 'Imputation_Histogram.png'.")
+    zero_pct = (ema['Fitbit_Reading_Count'] == 0).mean() * 100
+    print(f"  Fully missing windows (0 readings): {zero_pct:.1f}% of all EMA surveys")
     
     print("\n" + "="*80)
     print("--- 4. DATA POINT COUNTS (N) BY IMPUTATION THRESHOLD ---")
