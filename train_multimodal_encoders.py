@@ -1,3 +1,33 @@
+"""
+CraveSense — production multimodal autoencoder training.
+
+Trains two independent neural autoencoders for unsupervised feature extraction
+from physiological and neurological data modalities. Saved weights are loaded
+at inference time by data_loader.py to produce latent features for the
+downstream Random Forest classifier.
+
+--- Fitbit LSTM Autoencoder ---
+Architecture:
+    Encoder: LSTM(input=2, hidden=32, layers=1, batch_first=True)
+    Decoder: LSTM(input=32, hidden=2, layers=1, batch_first=True)
+    Sequence: 90 timesteps × [HR, Steps] (1-minute resolution)
+    Embedding: 32-dimensional LSTM hidden state
+Training:
+    Loss: MSE reconstruction  |  Epochs: 5  |  Batch: 128  |  LR: 0.001
+Output: crave_fitbit_ae.pth
+
+--- fMRI Feedforward Autoencoder ---
+Architecture:
+    Encoder: Linear(496→64, ReLU) → Linear(64→16)
+    Decoder: Linear(16→64, ReLU) → Linear(64→496)
+    Input: 496 unique ROI-to-ROI functional connectivity values
+    Embedding: 16-dimensional latent vector (static per participant)
+Training:
+    Loss: MSE reconstruction  |  Epochs: 20  |  Batch: 32  |  LR: 0.001
+Output: crave_fmri_ae.pth, fmri_col_order.csv
+
+Run this script ONCE before main.py. Weights are reused across all pipeline runs.
+"""
 import pandas as pd
 import numpy as np
 import torch
