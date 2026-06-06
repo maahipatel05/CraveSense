@@ -1,3 +1,25 @@
+"""
+CraveSense — phase-aware EMA preprocessing utilities.
+
+Handles normalization of self-report scales across two data collection phases
+that used incompatible rating ranges:
+
+  Phase 1:  Stress 0–6   |  Mood 1–5
+  Phase 2:  Stress 0–12  |  Mood 0–12
+
+Both scales are mapped to [0, 1] before any downstream feature engineering
+or modeling. Without this step, Phase 1 and Phase 2 data are not comparable
+and any learned model would be confounded by collection protocol rather than
+true psychological state.
+
+Also handles deduplication: survey entries within 60 minutes of a previous
+entry for the same participant are dropped (keeping the first), as they likely
+represent accidental re-submissions or protocol violations.
+
+Note: normalization logic is also re-implemented inline in data_loader.py
+for the full pipeline. This module is retained as a standalone preprocessing
+utility and for methodological transparency.
+"""
 import pandas as pd
 import numpy as np
 

@@ -1,3 +1,34 @@
+"""
+CraveSense — core data loading, feature engineering, and imputation pipeline.
+
+This is the central data module. It is responsible for transforming five raw
+clinical data sources into a single analysis-ready feature matrix.
+
+Pipeline overview:
+  1. Load raw EMA, Fitbit, fMRI, demographics, and survey files.
+  2. Normalize EMA scales across collection phases (phase-aware).
+  3. Compute Fitbit time-window features for three window sizes (15, 30, 45 min)
+     and two temporal shifts (shift=0 for detection; shift=90 for forecasting).
+  4. Extract 32-dim LSTM latent features from the pre-trained Fitbit autoencoder
+     for 45-minute windows (using a 90-minute lookback for richer context).
+  5. Extract 16-dim feedforward latent features from the pre-trained fMRI
+     autoencoder for each participant's resting-state connectivity matrix.
+  6. Merge all modalities on User_ID.
+  7. Apply smart imputation: stratified by time-of-day (Morning/Afternoon/
+     Evening/Night) and activity level, with a physiological boost (×1.15 HR)
+     applied to windows where steps indicate the participant was active but
+     heart rate is missing.
+
+Side effects on import:
+  Loads PyTorch autoencoder weights from disk (crave_fitbit_ae.pth and
+  crave_fmri_ae.pth). If weights are missing, autoencoders fall back to None
+  and latent features are filled with NaN (pipeline still runs, but with
+  degraded feature set). Run train_multimodal_encoders.py first.
+
+Constants:
+  WINDOW_SIZES = [15, 30, 45]  — Fitbit aggregation windows in minutes
+  SHIFTS       = [0, 90]       — temporal shifts for detection vs. forecasting
+"""
 import pandas as pd
 import numpy as np
 from datetime import timedelta

@@ -1,3 +1,29 @@
+"""
+CraveSense — Fitbit data density diagnostic tool.
+
+Quantifies how many Fitbit sensor readings are available within each 45-minute
+survey window across the full EMA dataset. This diagnostic directly informs
+the imputation strategy: if most windows have zero Fitbit readings, imputation
+is unavoidable; if most have dense coverage, stricter thresholds are justified.
+
+Outputs:
+  - Imputation_Histogram.png: log-scale histogram of Fitbit readings per window
+  - Console table: dataset size N as a function of minimum reading threshold
+    (0, 1, 5, 15, 30 readings), shown separately for sensor-only and full
+    multimodal (requires fMRI) subsets
+
+Design rationale:
+  The 45-minute window was chosen to match the survey response latency: a
+  participant typically completes a survey within ~45 minutes of a craving
+  event. Windows with fewer than 1 reading are fully imputed. The diagnostic
+  helps the team decide whether to tighten this threshold at the cost of N.
+
+Usage:
+    python diagnostic_imputation.py
+
+Requires: Updated_CombineEMA-2.csv, Crave_Pilot_Fitbit.csv,
+          All_fMRI_connectivity_features.csv in the working directory.
+"""
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
