@@ -353,11 +353,7 @@ CraveSense/
 
 ## Contributors
 
-| Contributor | Role |
-|---|---|
-| **Maahi Shah** | Lead researcher and ML engineer. Designed the multimodal fusion architecture, implemented all data processing and modeling pipelines, trained the autoencoders, and conducted all experimental analysis. |
-| **Claude Code** (Anthropic) | AI pair programmer. Assisted with repository structuring, production-readiness hygiene (`.gitignore`, `LICENSE`, `CONTRIBUTING.md`), dependency auditing, and documentation generation. |
-
+Contributors: Maahi Patel and Jinay Shah
 ---
 
 ## License
@@ -377,6 +373,6 @@ If you use this codebase or methodology in your research, please cite:
   title   = {CraveSense: Multimodal Craving Prediction via EMA, Wearables, and fMRI},
   author  = {Shah, Maahi},
   year    = {2026},
-  url     = {https://github.com/<your-username>/CraveSense}
+  url     = {https://github.com/maahipatel05/CraveSense}
 }
 ```
