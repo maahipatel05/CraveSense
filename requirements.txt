@@ -1,0 +1,28 @@
+# =============================================================================
+# CraveSense — Python Dependencies
+# =============================================================================
+# Python >= 3.11 required
+#
+# Install all dependencies:
+#   pip install -r requirements.txt
+#
+# For GPU-enabled PyTorch (replace the torch line):
+#   pip install torch==2.4.1+cu121 --index-url https://download.pytorch.org/whl/cu121
+# =============================================================================
+
+# --- Core Data & Numerics ---
+pandas==2.2.2
+numpy==1.26.4
+
+# --- Machine Learning ---
+scikit-learn==1.5.1
+xgboost==3.0.5
+imbalanced-learn==0.12.3
+
+# --- Deep Learning (CPU build) ---
+# For GPU, see note above
+torch==2.4.1
+
+# --- Visualization ---
+matplotlib==3.9.2
+seaborn==0.13.2

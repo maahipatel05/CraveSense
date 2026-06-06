@@ -1,0 +1,168 @@
+# =============================================================================
+# CraveSense — .gitignore
+# =============================================================================
+# IMPORTANT: This project involves clinical health data (EMA surveys, fMRI
+# connectivity, Fitbit biometrics). Raw participant data MUST NEVER be
+# committed to any repository, public or private, without explicit IRB
+# approval and a data sharing agreement.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Clinical & Research Data — NEVER COMMIT
+# -----------------------------------------------------------------------------
+/data/
+*.csv
+*.tsv
+*.xls
+*.xlsx
+*.json
+# Exception: allow tracked reference JSON files if explicitly staged
+# (use `git add -f <file>` to override for non-sensitive metadata)
+
+# -----------------------------------------------------------------------------
+# Trained Model Artifacts — too large / contain participant-derived embeddings
+# -----------------------------------------------------------------------------
+/models/
+*.pth
+*.pt
+*.ckpt
+*.pkl
+*.joblib
+*.h5
+*.hdf5
+*.onnx
+*.safetensors
+
+# -----------------------------------------------------------------------------
+# Generated Visualizations & Intermediate Outputs
+# -----------------------------------------------------------------------------
+visualizations/
+*.png
+*.jpg
+*.jpeg
+*.svg
+*.pdf
+
+# -----------------------------------------------------------------------------
+# Python Runtime & Caches
+# -----------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+
+# -----------------------------------------------------------------------------
+# Virtual Environments
+# -----------------------------------------------------------------------------
+.venv/
+venv/
+env/
+ENV/
+.env
+.env.*
+*.env
+
+# -----------------------------------------------------------------------------
+# Python Package Build Artifacts
+# -----------------------------------------------------------------------------
+dist/
+build/
+*.egg-info/
+*.egg
+MANIFEST
+pip-wheel-metadata/
+
+# -----------------------------------------------------------------------------
+# Jupyter Notebooks — outputs & checkpoints
+# -----------------------------------------------------------------------------
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/
+# Uncomment below to also ignore all notebooks:
+# *.ipynb
+
+# -----------------------------------------------------------------------------
+# NumPy / PyTorch / scikit-learn Caches
+# -----------------------------------------------------------------------------
+*.npy
+*.npz
+*.npy.gz
+
+# -----------------------------------------------------------------------------
+# OS & Editor Files
+# -----------------------------------------------------------------------------
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# JetBrains / PyCharm
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Vim / Emacs
+*.swp
+*.swo
+*.swn
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+Session.vim
+
+# -----------------------------------------------------------------------------
+# Logs & Profiling
+# -----------------------------------------------------------------------------
+*.log
+*.out
+*.err
+logs/
+mlruns/
+wandb/
+lightning_logs/
+
+# -----------------------------------------------------------------------------
+# Temporary & Scratch Files
+# -----------------------------------------------------------------------------
+tmp/
+temp/
+scratch/
+*.tmp
+*.bak
+*.backup
+
+# -----------------------------------------------------------------------------
+# Coverage & Test Reports
+# -----------------------------------------------------------------------------
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+nosetests.xml
+test-results/
+
+# -----------------------------------------------------------------------------
+# DVC (Data Version Control) — if adopted later
+# -----------------------------------------------------------------------------
+/tmp/
+.dvc/tmp/

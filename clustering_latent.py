@@ -1,0 +1,93 @@
+import pandas as pd
+import numpy as np
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+import warnings
+warnings.filterwarnings('ignore')
+
+def run_clustering():
+    print("\n" + "="*80)
+    print("PHASE 2: LATENT CLUSTERING & PSYCHOLOGICAL PROFILING")
+    print("="*80)
+
+    df = pd.read_csv('Final_Master_Dataset_Imputed.csv')
+
+    latent_fitbit = [f'Latent_Fitbit_{i}' for i in range(32)]
+    latent_fmri = [f'Latent_fMRI_{i}' for i in range(16)]
+    df_clean = df.dropna(subset=['Target_Now'] + latent_fitbit + latent_fmri).copy()
+
+    print("\n--- 1. PSYCHOLOGICAL CLUSTERING (EMA) ---")
+    ema_cols = ['Stress_Norm', 'Mood_Norm', 'Delta_Stress', 'Delta_Mood']
+    X_ema = df_clean[ema_cols].fillna(0)
+
+    scaler = StandardScaler()
+    X_ema_scaled = scaler.fit_transform(X_ema)
+
+    kmeans_ema = KMeans(n_clusters=2, random_state=42, n_init=10)
+    df_clean['EMA_Cluster'] = kmeans_ema.fit_predict(X_ema_scaled)
+
+    for i in range(2):
+        subset = df_clean[df_clean['EMA_Cluster'] == i]
+        craving_pct = subset['Target_Now'].mean() * 100
+        avg_stress = subset['Stress_Norm'].mean()
+        avg_mood = subset['Mood_Norm'].mean()
+        mode_hour = subset['Hour'].mode()[0]
+        
+        trauma = subset['CTQ_Total'].mean() if 'CTQ_Total' in df_clean.columns else "N/A"
+
+        print(f"\n EMOTIONAL PROFILE {i} (N={len(subset)} instances)")
+        print(f"   - % Reporting Craving : {craving_pct:.1f}%")
+        print(f"   - Average Stress      : {avg_stress:.3f} (Normalized)")
+        print(f"   - Average Mood        : {avg_mood:.3f} (Normalized)")
+        print(f"   - Dominant Hour       : {mode_hour}:00")
+        if trauma != "N/A": print(f"   - Avg Trauma Score    : {trauma:.1f}")
+
+    print("\n--- 2. PREDICTING PSYCH PROFILE FROM WATCH & BRAIN ---")
+    X_sensors = df_clean[latent_fitbit + latent_fmri]
+    y_cluster = df_clean['EMA_Cluster']
+
+    X_train, X_test, y_train, y_test = train_test_split(X_sensors, y_cluster, test_size=0.3, random_state=42)
+
+    rf = RandomForestClassifier(random_state=42, max_depth=5, class_weight='balanced')
+    rf.fit(X_train, y_train)
+    preds = rf.predict(X_test)
+
+    acc = accuracy_score(y_test, preds)
+    baseline_acc = max(y_test.value_counts(normalize=True))
+    
+    print(f"✅ Accuracy predicting Emotional Profile using ONLY Fitbit+fMRI: {acc*100:.1f}%")
+    print(f"   (For context, a blind guess would achieve {baseline_acc*100:.1f}%)")
+
+    print("\n--- 3. USER-LEVEL CLUSTERING (The Person as a Whole) ---")
+    user_df = df_clean.groupby('User_ID')[latent_fitbit + latent_fmri].mean()
+
+    scaler_user = StandardScaler()
+    user_scaled = scaler_user.fit_transform(user_df)
+
+    kmeans_user = KMeans(n_clusters=3, random_state=42, n_init=10) 
+    user_df['Patient_Archetype'] = kmeans_user.fit_predict(user_scaled)
+
+    for i in range(3):
+        n_users = len(user_df[user_df['Patient_Archetype'] == i])
+        print(f" Patient Archetype {i}: {n_users} Unique Users")
+    print("\n--- ARCHETYPE PROFILING ---")
+    
+    user_archetypes = user_df[['Patient_Archetype']].reset_index()
+    df_merged = pd.merge(df_clean, user_archetypes, on='User_ID', how='left')
+    
+    for i in range(3):
+        subset = df_merged[df_merged['Patient_Archetype'] == i]
+        if subset.empty: continue
+            
+        print(f"\n🧠 ARCHETYPE {i} (Represents {user_archetypes['Patient_Archetype'].value_counts()[i]} Users)")
+        print(f"   - Overall Craving Rate: {subset['Target_Now'].mean()*100:.1f}%")
+        print(f"   - Average HR (Baseline): {subset['HR_Mean_45'].mean():.1f} bpm")
+        print(f"   - Average Daily Steps: {subset['Steps_45'].mean():.1f}")
+        if 'CTQ_Total' in subset.columns:
+            print(f"   - Avg Trauma Score: {subset['CTQ_Total'].mean():.1f}")
+
+if __name__ == "__main__":
+    run_clustering()

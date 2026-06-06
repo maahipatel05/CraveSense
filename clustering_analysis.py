@@ -1,0 +1,73 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score
+from sklearn.preprocessing import StandardScaler
+import warnings
+warnings.filterwarnings("ignore")
+
+def run_clustering(df, cols_to_cluster, modality_name):
+    print(f"\n--- Running Dynamic Silhouette Clustering on: {modality_name} ---")
+    
+    # Drop NaNs for the selected columns
+    cluster_df = df.dropna(subset=cols_to_cluster + ['Target_Now']).copy()
+    if len(cluster_df) < 50:
+        print("Not enough data to cluster.")
+        return
+        
+    X = cluster_df[cols_to_cluster]
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+    
+    # 1. Calculate Silhouette Scores to dynamically find the best k
+    silhouette_scores = []
+    K_range = range(2, 7)
+    
+    for k in K_range:
+        kmeans = KMeans(n_clusters=k, random_state=42, n_init=10)
+        labels = kmeans.fit_predict(X_scaled)
+        score = silhouette_score(X_scaled, labels)
+        silhouette_scores.append(score)
+        
+    best_k = K_range[np.argmax(silhouette_scores)]
+    print(f"Optimal number of clusters (Dynamic k) determined by Silhouette: {best_k}")
+    
+    # Plot Silhouette
+    plt.figure(figsize=(8, 4))
+    plt.plot(K_range, silhouette_scores, marker='o', linestyle='--', color='b')
+    plt.title(f'Silhouette Score vs Number of Clusters ({modality_name})')
+    plt.xlabel('Number of Clusters (k)')
+    plt.ylabel('Silhouette Score')
+    plt.grid(True)
+    plt.savefig(f'Silhouette_{modality_name.replace(" ", "_")}.png')
+    plt.close()
+    
+    # 2. Fit Final KMeans with the best k
+    final_kmeans = KMeans(n_clusters=best_k, random_state=42, n_init=10)
+    cluster_df['Cluster'] = final_kmeans.fit_predict(X_scaled)
+    
+    print("\nCLUSTER PROFILES:")
+    profile_cols = [c for c in cols_to_cluster if c in cluster_df.columns]
+    
+    for i in range(best_k):
+        subset = cluster_df[cluster_df['Cluster'] == i]
+        craving_rate = subset['Target_Now'].mean() * 100
+        print(f"\nCluster {i} (N={len(subset)}): Craving Rate = {craving_rate:.1f}%")
+        
+        # Print averages of features in this cluster
+        means = subset[profile_cols].mean()
+        for col, val in means.items():
+            print(f"  - Avg {col}: {val:.3f}")
+
+if __name__ == "__main__":
+    df = pd.read_csv('Final_Master_Dataset_Imputed.csv')
+    
+    # Define modalities
+    ema_cols = ['Stress_Norm', 'Mood_Norm']
+    sensor_cols = ['HR_Mean_45', 'Steps_45']
+    fmri_cols = [c for c in df.columns if "NW" in c][:10] # Grab top 10 fMRI cols to avoid exploding the clustering
+    
+    run_clustering(df, ema_cols, "EMA Only")
+    run_clustering(df, ema_cols + sensor_cols, "EMA + Sensors")
